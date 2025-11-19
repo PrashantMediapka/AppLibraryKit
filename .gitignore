@@ -1,0 +1,53 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# Node artifacts
+node_modules
+.npm
+.eslintcache
+.node_repl_history
+*.tgz
+*.pack
+
+# Build directories
+build/
+dist/
+.next
+out/
+
+# IDE specific
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# .NET specific
+bin/
+obj/
+.vs/
+*.user
+*.suo
+*.userosscache
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+.terraform.lock.hcl
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# OS
+Thumbs.db
+.DS_Store

@@ -1,0 +1,29 @@
+# =====================================================
+# Terraform Variables Configuration Example
+# =====================================================
+# Copy this file to terraform.tfvars and update with
+# your actual values before running terraform
+
+# Azure Subscription Information
+subscription_id = "YOUR_SUBSCRIPTION_ID"
+tenant_id       = "YOUR_TENANT_ID"
+
+# Service Principal Credentials
+client_id     = "YOUR_SERVICE_PRINCIPAL_CLIENT_ID"
+client_secret = "YOUR_SERVICE_PRINCIPAL_CLIENT_SECRET"
+
+# Environment Configuration
+environment = "prod"
+location    = "eastus"
+
+# Project Configuration
+project_name = "applibrarykit"
+
+# Resource SKUs and Tiers
+app_service_sku                 = "B2"
+storage_account_tier            = "Standard"
+storage_account_replication_type = "GRS"
+
+# Runtime Versions
+dotnet_runtime_version = "8.0"
+node_runtime_version   = "18"

@@ -1,0 +1,17 @@
+environment                      = "prod"
+location                         = "eastus"
+project_name                     = "applibrarykit"
+app_service_sku                  = "B2"
+storage_account_tier             = "Standard"
+storage_account_replication_type = "GRS"
+dotnet_runtime_version           = "8.0"
+node_runtime_version             = "18"
+<<<<<<< HEAD
+
+# These values will be provided via GitHub Actions secrets
+# subscription_id  = var from AZURE_SUBSCRIPTION_ID
+# client_id       = var from AZURE_CLIENT_ID
+# client_secret   = var from AZURE_CLIENT_SECRET
+# tenant_id       = var from AZURE_TENANT_ID
+=======
+>>>>>>> 4c1262cb642ac2382ff24bab4ccb57c432b68bd3
