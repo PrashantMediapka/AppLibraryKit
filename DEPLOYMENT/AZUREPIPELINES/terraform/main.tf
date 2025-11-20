@@ -287,20 +287,10 @@ resource "azurerm_cosmosdb_account" "main" {
   tags = local.common_tags
 }
 
-// ============================================
-// Azure Static Web App (requested: swapplibdemo001)
-// Note: azurerm provider must support this resource in your provider version.
-// If the provider in use does not include `azurerm_static_site`, remove or adapt this block.
-// ============================================
-resource "azurerm_static_site" "spa_site" {
-  name                = "swapplibdemo001"
-  resource_group_name = azurerm_resource_group.main.name
-  location            = azurerm_resource_group.main.location
-  sku_name            = "Free"
-  branch              = "main"
-  # repository_url can be set to the repo hosting the site; left empty intentionally
-  tags = local.common_tags
-}
+// Note: a separate Azure Static Web App resource is not used here.
+// The React SPA will be hosted using the Storage Account static website feature
+// created above (`stapplibdemo001`). The requested static app name `swapplibdemo001`
+// will be represented by the storage account's static website endpoint.
 
 // Log Analytics Workspace
 resource "azurerm_log_analytics_workspace" "main" {
@@ -330,6 +320,16 @@ output "storage_account_name" {
 output "storage_account_primary_web_endpoint" {
   value       = azurerm_storage_account.spa.primary_web_endpoint
   description = "Primary web endpoint of the storage account"
+}
+
+output "static_app_name" {
+  value       = "swapplibdemo001"
+  description = "Logical static app name requested; hosted via the storage account static website stapplibdemo001"
+}
+
+output "static_app_url" {
+  value       = azurerm_storage_account.spa.primary_web_endpoint
+  description = "URL to access the static web app (storage static website)"
 }
 
 output "app_service_name" {
