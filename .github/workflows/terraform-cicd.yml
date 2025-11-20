@@ -57,6 +57,33 @@ jobs:
         working-directory: DEPLOYMENT/AZUREPIPELINES/terraform
         run: terraform output -json
 
+      # Build & deploy React SPA to storage static website ($web)
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install frontend dependencies
+        working-directory: APPS/reactwebappdemo
+        run: |
+          npm ci
+
+      - name: Build React app
+        working-directory: APPS/reactwebappdemo
+        run: |
+          npm run build
+
+      - name: Upload build to Azure Storage $web container
+        # Uses az CLI (already authenticated by azure/login). Uses --auth-mode login so no storage key is required.
+        run: |
+          echo "Uploading build to storage account: stapplibdemo001"
+          az storage blob upload-batch \
+            --account-name stapplibdemo001 \
+            --source APPS/reactwebappdemo/build \
+            --destination '$web' \
+            --auth-mode login
+
+
 # Notes:
 # - Create the service principal JSON via `az ad sp create-for-rbac --name "github-action-applibrarykit" --role Contributor --scopes /subscriptions/<subscriptionId> --sdk-auth`
 # - Save that JSON into the GitHub Actions repository secret `AZURE_CREDENTIALS`.
