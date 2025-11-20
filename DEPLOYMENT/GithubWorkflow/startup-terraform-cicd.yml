@@ -1,0 +1,60 @@
+# Startup pipeline (for repository reference)
+# This workflow runs Terraform in DEPLOYMENT/AZUREPIPELINES/terraform/main.tf
+# NOTE: GitHub Actions workflows only run when placed in `.github/workflows/`.
+# This file is provided in `DEPLOYMENT/GithubWorkflow/` for documentation or manual copying into `.github/workflows/`.
+
+name: Startup Terraform CI/CD (reference)
+
+on:
+  workflow_dispatch: {}
+
+jobs:
+  deploy:
+    name: Run Terraform (startup)
+    runs-on: ubuntu-latest
+    env:
+      AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: '1.5.9'
+
+      - name: Azure login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Set subscription
+        run: |
+          echo "Setting subscription to $AZURE_SUBSCRIPTION_ID"
+          az account set --subscription $AZURE_SUBSCRIPTION_ID
+
+      - name: Terraform init
+        working-directory: DEPLOYMENT/AZUREPIPELINES/terraform
+        run: terraform init -input=false
+
+      - name: Terraform validate
+        working-directory: DEPLOYMENT/AZUREPIPELINES/terraform
+        run: terraform validate
+
+      - name: Terraform plan
+        working-directory: DEPLOYMENT/AZUREPIPELINES/terraform
+        run: terraform plan -out=tfplan -input=false -var "subscription_id=$AZURE_SUBSCRIPTION_ID"
+
+      - name: Terraform apply (auto-approve)
+        working-directory: DEPLOYMENT/AZUREPIPELINES/terraform
+        run: terraform apply -input=false -auto-approve tfplan
+
+      - name: Terraform outputs
+        working-directory: DEPLOYMENT/AZUREPIPELINES/terraform
+        run: terraform output -json
+
+# Usage:
+# - Copy this file into .github/workflows/ to have GitHub run it.
+# - Ensure repository secrets AZURE_CREDENTIALS and AZURE_SUBSCRIPTION_ID are configured.
+# - The workflow will execute the Terraform config located at DEPLOYMENT/AZUREPIPELINES/terraform/main.tf
