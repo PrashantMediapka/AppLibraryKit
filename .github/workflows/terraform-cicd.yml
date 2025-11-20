@@ -37,15 +37,15 @@ jobs:
         uses: hashicorp/setup-terraform@v2
         with:
           terraform_version: "1.5.7"
-          
+
       - name: Azure login (service principal)
-        uses: azure/login@v2
+        uses: azure/login@v1
         with:
           client-id: ${{ secrets.ARM_CLIENT_ID }}
           tenant-id: ${{ secrets.ARM_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           client-secret: ${{ secrets.ARM_CLIENT_SECRET }}
-          auth-type: 'service-principal'
+          auth-type: SERVICE_PRINCIPAL
 
       - name: Set subscription (explicit)
         run: |
