@@ -9,7 +9,7 @@
 
 terraform {
   required_version = ">= 1.0.0"
-  
+
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
@@ -55,7 +55,7 @@ variable "project_name" {
 variable "app_service_sku" {
   description = "SKU for App Service Plan"
   type        = string
-  default     = "B2"  # Basic B1, B2, B3; Standard S1, S2, S3
+  default     = "B2"
 }
 
 variable "storage_account_tier" {
@@ -109,7 +109,7 @@ variable "node_runtime_version" {
 // Local Variables
 locals {
   resource_prefix = "${var.project_name}-${var.environment}"
-  
+
   common_tags = {
     Environment = var.environment
     Project     = var.project_name
@@ -128,9 +128,9 @@ resource "random_string" "resource_suffix" {
 // Resource Group
 resource "azurerm_resource_group" "main" {
   # Explicit resource group name per request
-  name       = "rgapplibdemo"
-  location   = var.location
-  tags       = local.common_tags
+  name     = "rgapplibdemo"
+  location = var.location
+  tags     = local.common_tags
 }
 
 // Storage Account (for React SPA)
@@ -180,31 +180,31 @@ resource "azurerm_linux_web_app" "api" {
     application_stack {
       dotnet_version = var.dotnet_runtime_version
     }
-    
-    always_on         = true
-    http2_enabled     = true
-    websockets_enabled = false
+
+    always_on           = true
+    http2_enabled       = true
+    websockets_enabled  = false
     minimum_tls_version = "1.2"
-    
+
     cors {
       allowed_origins = [
         "https://${azurerm_storage_account.spa.primary_web_endpoint}",
         "http://localhost:3000",
-        "http://localhost:3001"
+        "http://localhost:3001",
       ]
       support_credentials = true
     }
   }
 
   app_settings = {
-    "WEBSITE_RUN_FROM_PACKAGE"      = "1"
-    "ApplicationInsightsAgent_EXTENSION_VERSION" = "~3"
-    "XDT_MakeFileInPlace"           = "0"
-    "APPINSIGHTS_PROFILER_ENABLED"  = "true"
+    WEBSITE_RUN_FROM_PACKAGE                    = "1"
+    ApplicationInsightsAgent_EXTENSION_VERSION = "~3"
+    XDT_MakeFileInPlace                         = "0"
+    APPINSIGHTS_PROFILER_ENABLED                = "true"
   }
 
   https_only = true
-  
+
   tags = local.common_tags
 }
 
@@ -254,15 +254,13 @@ resource "azurerm_key_vault" "main" {
 // Key Vault Secret for JWT Secret Key
 resource "azurerm_key_vault_secret" "jwt_secret" {
   name         = "JwtSecretKey"
-  value        = "SuperSecureJwtKey1234567890123456789"  # Replace with actual secret
+  value        = "SuperSecureJwtKey1234567890123456789" // Replace with actual secret
   key_vault_id = azurerm_key_vault.main.id
 
   tags = local.common_tags
 }
 
-// ============================================
 // Cosmos DB Account (requested: cosapplibdemo001)
-// ============================================
 resource "azurerm_cosmosdb_account" "main" {
   name                = "cosapplibdemo001"
   location            = azurerm_resource_group.main.location
@@ -279,17 +277,12 @@ resource "azurerm_cosmosdb_account" "main" {
     failover_priority = 0
   }
 
- // capabilities = []
-
- // enable_automatic_failover = false
- // enable_multiple_write_locations = false
-
   tags = local.common_tags
 }
 
 // Note: a separate Azure Static Web App resource is not used here.
 // The React SPA will be hosted using the Storage Account static website feature
-// created above (`stapplibdemo001`). The requested static app name `swapplibdemo001`
+// created above (stapplibdemo001). The requested static app name (swapplibdemo001)
 // will be represented by the storage account's static website endpoint.
 
 // Log Analytics Workspace
