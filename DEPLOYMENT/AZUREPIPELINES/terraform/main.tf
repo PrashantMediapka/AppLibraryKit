@@ -279,10 +279,10 @@ resource "azurerm_cosmosdb_account" "main" {
     failover_priority = 0
   }
 
-  capabilities = []
+ // capabilities = []
 
-  enable_automatic_failover = false
-  enable_multiple_write_locations = false
+ // enable_automatic_failover = false
+ // enable_multiple_write_locations = false
 
   tags = local.common_tags
 }
