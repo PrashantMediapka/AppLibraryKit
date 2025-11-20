@@ -51,15 +51,6 @@ output "app_insights_connection_string" {
   sensitive   = true
 }
 
-<<<<<<< HEAD
-output "app_insights_app_id" {
-  value       = azurerm_application_insights.api.app_id
-  description = "Application ID for Application Insights"
-  sensitive   = true
-}
-
-=======
->>>>>>> 4c1262cb642ac2382ff24bab4ccb57c432b68bd3
 output "key_vault_id" {
   value       = azurerm_key_vault.main.id
   description = "ID of the Key Vault"
@@ -85,17 +76,6 @@ output "log_analytics_workspace_name" {
   description = "Name of the Log Analytics Workspace"
 }
 
-<<<<<<< HEAD
-output "log_analytics_workspace_resource_id" {
-  value       = azurerm_log_analytics_workspace.main.id
-  description = "Resource ID for Application Insights connection to Log Analytics"
-}
-
-# ========================================
-# Deployment Summary Outputs
-# ========================================
-=======
->>>>>>> 4c1262cb642ac2382ff24bab4ccb57c432b68bd3
 output "deployment_summary" {
   value = {
     resource_group_name     = azurerm_resource_group.main.name
