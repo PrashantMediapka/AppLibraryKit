@@ -190,7 +190,7 @@ resource "azurerm_linux_web_app" "api" {
       allowed_origins = [
         "https://${azurerm_storage_account.spa.primary_web_endpoint}",
         "http://localhost:3000",
-        "http://localhost:3001",
+        "http://localhost:3001"
       ]
       support_credentials = true
     }
@@ -252,9 +252,10 @@ resource "azurerm_key_vault" "main" {
 }
 
 // Key Vault Secret for JWT Secret Key
+// Key Vault secret value should be set securely (do not hard-code in production)
 resource "azurerm_key_vault_secret" "jwt_secret" {
   name         = "JwtSecretKey"
-  value        = "SuperSecureJwtKey1234567890123456789" // Replace with actual secret
+  value        = "SuperSecureJwtKey1234567890123456789"
   key_vault_id = azurerm_key_vault.main.id
 
   tags = local.common_tags
