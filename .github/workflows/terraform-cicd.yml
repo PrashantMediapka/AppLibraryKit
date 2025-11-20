@@ -47,6 +47,24 @@ jobs:
       #     client-secret: ${{ secrets.ARM_CLIENT_SECRET }}
       #     auth-type: service-principal
 
+      - name: Azure CLI login
+        run: |
+          echo "Logging in to Azure..."
+          az login --service-principal \
+            --username ${{ secrets.ARM_CLIENT_ID }} \
+            --password ${{ secrets.ARM_CLIENT_SECRET }} \
+            --tenant ${{ secrets.ARM_TENANT_ID }}
+
+          echo "Listing subscriptions available to this SP:"
+          az account list --query '[].{Name:name, ID:id}' -o table
+
+          echo "Setting active subscription..."
+          az account set --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+          echo "Current subscription:"
+          az account show --query "{Name:name, ID:id}" -o table
+
+
       - name: Set subscription (explicit)
         run: |
           echo "Using subscription: $AZURE_SUBSCRIPTION_ID"
