@@ -45,7 +45,7 @@ jobs:
           tenant-id: ${{ secrets.ARM_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           client-secret: ${{ secrets.ARM_CLIENT_SECRET }}
-          auth-type: 'service-principal'
+          auth-type: 'SERVICE_PRINCIPAL'
 
       - name: Set subscription (explicit)
         run: |
