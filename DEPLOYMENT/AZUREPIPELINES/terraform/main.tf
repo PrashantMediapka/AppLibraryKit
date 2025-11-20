@@ -1,12 +1,11 @@
-# ============================================
-# Terraform Configuration for AppLibraryKit
-# ============================================
-# This Terraform configuration provisions:
-# 1. Resource Groups
-# 2. Azure Storage Account (for React SPA)
-# 3. Azure App Service (for .NET 8 Web API)
-# 4. Application Insights (for monitoring)
-# 5. KeyVault (for secrets management)
+// Terraform Configuration for AppLibraryKit
+// This Terraform configuration provisions:
+// - Resource Group
+// - Storage account (static website for React SPA)
+// - App Service Plan and Linux Web App (for .NET 8 API)
+// - Application Insights
+// - Key Vault and a sample secret
+// - Log Analytics Workspace
 
 terraform {
   required_version = ">= 1.0.0"
@@ -21,14 +20,6 @@ terraform {
       version = "~> 3.5.0"
     }
   }
-
-  # Backend configuration (comment out for local state, uncomment for remote)
-  # backend "azurerm" {
-  #   resource_group_name  = "terraform-state"
-  #   storage_account_name = "tfstate"
-  #   container_name       = "tfstate"
-  #   key                  = "applibrarykit.tfstate"
-  # }
 }
 
 provider "azurerm" {
@@ -42,9 +33,7 @@ provider "azurerm" {
 
 provider "random" {}
 
-# ============================================
-# Variables
-# ============================================
+// Variables
 variable "environment" {
   description = "Environment name (dev, staging, prod)"
   type        = string
@@ -66,11 +55,7 @@ variable "project_name" {
 variable "app_service_sku" {
   description = "SKU for App Service Plan"
   type        = string
-<<<<<<< HEAD
   default     = "B2"  # Basic B1, B2, B3; Standard S1, S2, S3
-=======
-  default     = "B2"
->>>>>>> 4c1262cb642ac2382ff24bab4ccb57c432b68bd3
 }
 
 variable "storage_account_tier" {
@@ -115,18 +100,13 @@ variable "dotnet_runtime_version" {
   default     = "8.0"
 }
 
-<<<<<<< HEAD
 variable "node_runtime_version" {
   description = "Node.js runtime version for Static Web Apps"
   type        = string
   default     = "18"
 }
 
-=======
->>>>>>> 4c1262cb642ac2382ff24bab4ccb57c432b68bd3
-# ============================================
-# Local Variables
-# ============================================
+// Local Variables
 locals {
   resource_prefix = "${var.project_name}-${var.environment}"
   
@@ -138,29 +118,25 @@ locals {
   }
 }
 
-# ============================================
-# Random String for Uniqueness
-# ============================================
+// Random String for Uniqueness
 resource "random_string" "resource_suffix" {
   length  = 4
   special = false
   upper   = false
 }
 
-# ============================================
-# Resource Group
-# ============================================
+// Resource Group
 resource "azurerm_resource_group" "main" {
-  name       = "${local.resource_prefix}-rg"
+  # Explicit resource group name per request
+  name       = "rgapplibdemo"
   location   = var.location
   tags       = local.common_tags
 }
 
-# ============================================
-# Storage Account (for React SPA)
-# ============================================
+// Storage Account (for React SPA)
 resource "azurerm_storage_account" "spa" {
-  name                     = "${replace(local.resource_prefix, "-", "")}${random_string.resource_suffix.result}"
+  # Explicit storage account name per request (must be globally unique and 3-24 lowercase alphanumeric)
+  name                     = "stapplibdemo001"
   resource_group_name      = azurerm_resource_group.main.name
   location                 = azurerm_resource_group.main.location
   account_tier             = var.storage_account_tier
@@ -175,16 +151,14 @@ resource "azurerm_storage_account" "spa" {
   tags = local.common_tags
 }
 
-# Storage container for static website
+// Storage container for static website
 resource "azurerm_storage_container" "spa_web" {
   name                  = "$web"
   storage_account_id    = azurerm_storage_account.spa.id
   container_access_type = "blob"
 }
 
-# ============================================
-# App Service Plan (for .NET 8 API)
-# ============================================
+// App Service Plan (for .NET 8 API)
 resource "azurerm_service_plan" "api" {
   name                = "${local.resource_prefix}-api-plan"
   location            = azurerm_resource_group.main.location
@@ -195,9 +169,7 @@ resource "azurerm_service_plan" "api" {
   tags = local.common_tags
 }
 
-# ============================================
-# App Service (.NET 8 Web API)
-# ============================================
+// App Service (.NET 8 Web API)
 resource "azurerm_linux_web_app" "api" {
   name                = "${local.resource_prefix}-api"
   location            = azurerm_resource_group.main.location
@@ -211,10 +183,7 @@ resource "azurerm_linux_web_app" "api" {
     
     always_on         = true
     http2_enabled     = true
-<<<<<<< HEAD
     websockets_enabled = false
-=======
->>>>>>> 4c1262cb642ac2382ff24bab4ccb57c432b68bd3
     minimum_tls_version = "1.2"
     
     cors {
@@ -239,9 +208,7 @@ resource "azurerm_linux_web_app" "api" {
   tags = local.common_tags
 }
 
-# ============================================
-# Application Insights (Monitoring)
-# ============================================
+// Application Insights (Monitoring)
 resource "azurerm_application_insights" "api" {
   name                = "${local.resource_prefix}-appinsights"
   location            = azurerm_resource_group.main.location
@@ -252,11 +219,10 @@ resource "azurerm_application_insights" "api" {
   tags = local.common_tags
 }
 
-# ============================================
-# Key Vault (Secrets Management)
-# ============================================
+// Key Vault (Secrets Management)
 resource "azurerm_key_vault" "main" {
-  name                        = "${replace(local.resource_prefix, "-", "")}${random_string.resource_suffix.result}kv"
+  # Explicit Key Vault name per request
+  name                        = "kvapplibdemo"
   location                    = azurerm_resource_group.main.location
   resource_group_name         = azurerm_resource_group.main.name
   enabled_for_disk_encryption = true
@@ -285,22 +251,58 @@ resource "azurerm_key_vault" "main" {
   tags = local.common_tags
 }
 
-# Key Vault Secret for JWT Secret Key
+// Key Vault Secret for JWT Secret Key
 resource "azurerm_key_vault_secret" "jwt_secret" {
   name         = "JwtSecretKey"
-<<<<<<< HEAD
   value        = "SuperSecureJwtKey1234567890123456789"  # Replace with actual secret
-=======
-  value        = "SuperSecureJwtKey1234567890123456789"
->>>>>>> 4c1262cb642ac2382ff24bab4ccb57c432b68bd3
   key_vault_id = azurerm_key_vault.main.id
 
   tags = local.common_tags
 }
 
-# ============================================
-# Log Analytics Workspace
-# ============================================
+// ============================================
+// Cosmos DB Account (requested: cosapplibdemo001)
+// ============================================
+resource "azurerm_cosmosdb_account" "main" {
+  name                = "cosapplibdemo001"
+  location            = azurerm_resource_group.main.location
+  resource_group_name = azurerm_resource_group.main.name
+  offer_type          = "Standard"
+  kind                = "GlobalDocumentDB"
+
+  consistency_policy {
+    consistency_level = "Session"
+  }
+
+  geo_location {
+    location          = azurerm_resource_group.main.location
+    failover_priority = 0
+  }
+
+  capabilities = []
+
+  enable_automatic_failover = false
+  enable_multiple_write_locations = false
+
+  tags = local.common_tags
+}
+
+// ============================================
+// Azure Static Web App (requested: swapplibdemo001)
+// Note: azurerm provider must support this resource in your provider version.
+// If the provider in use does not include `azurerm_static_site`, remove or adapt this block.
+// ============================================
+resource "azurerm_static_site" "spa_site" {
+  name                = "swapplibdemo001"
+  resource_group_name = azurerm_resource_group.main.name
+  location            = azurerm_resource_group.main.location
+  sku_name            = "Free"
+  branch              = "main"
+  # repository_url can be set to the repo hosting the site; left empty intentionally
+  tags = local.common_tags
+}
+
+// Log Analytics Workspace
 resource "azurerm_log_analytics_workspace" "main" {
   name                = "${local.resource_prefix}-logs"
   location            = azurerm_resource_group.main.location
@@ -311,14 +313,10 @@ resource "azurerm_log_analytics_workspace" "main" {
   tags = local.common_tags
 }
 
-# ============================================
-# Data Source: Current Client Config
-# ============================================
+// Data Source: Current Client Config
 data "azurerm_client_config" "current" {}
 
-# ============================================
-# Outputs
-# ============================================
+// Outputs
 output "resource_group_name" {
   value       = azurerm_resource_group.main.name
   description = "Name of the created resource group"

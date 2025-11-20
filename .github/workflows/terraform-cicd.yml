@@ -1,0 +1,64 @@
+name: Terraform CI/CD - AppLibraryKit
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch: {}
+
+jobs:
+  deploy-infrastructure:
+    name: Deploy Terraform infrastructure
+    runs-on: ubuntu-latest
+    env:
+      AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: "1.5.9"
+
+      - name: Azure login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Set subscription (explicit)
+        run: |
+          echo "Using subscription: $AZURE_SUBSCRIPTION_ID"
+          az account set --subscription $AZURE_SUBSCRIPTION_ID
+
+      - name: Terraform fmt check
+        working-directory: DEPLOYMENT/AZUREPIPELINES/terraform
+        run: terraform fmt -check -recursive
+
+      - name: Terraform init
+        working-directory: DEPLOYMENT/AZUREPIPELINES/terraform
+        run: terraform init -input=false
+
+      - name: Terraform validate
+        working-directory: DEPLOYMENT/AZUREPIPELINES/terraform
+        run: terraform validate || (echo "Terraform validate failed; check for merge-conflict markers or provider support for azurerm_static_site" && exit 1)
+
+      - name: Terraform plan
+        working-directory: DEPLOYMENT/AZUREPIPELINES/terraform
+        run: |
+          terraform plan -out=tfplan -input=false -var "subscription_id=$AZURE_SUBSCRIPTION_ID"
+
+      - name: Terraform apply
+        working-directory: DEPLOYMENT/AZUREPIPELINES/terraform
+        run: terraform apply -input=false -auto-approve tfplan
+
+      - name: Show outputs
+        working-directory: DEPLOYMENT/AZUREPIPELINES/terraform
+        run: terraform output -json
+
+# Notes:
+# - Create the service principal JSON via `az ad sp create-for-rbac --name "github-action-applibrarykit" --role Contributor --scopes /subscriptions/<subscriptionId> --sdk-auth`
+# - Save that JSON into the GitHub Actions repository secret `AZURE_CREDENTIALS`.
+# - Create a repository secret `AZURE_SUBSCRIPTION_ID` with value: f1944295-c875-4042-bb02-84b71e64719b
+# - If your provider version doesn't support `azurerm_static_site`, remove that resource from the Terraform config or upgrade the provider.
