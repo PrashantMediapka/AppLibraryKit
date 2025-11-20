@@ -39,7 +39,7 @@ jobs:
           terraform_version: "1.5.7"
 
       - name: Azure login (service principal)
-        uses: azure/login@v1
+        uses: azure/login@v1.6.0
         with:
           client-id: ${{ secrets.ARM_CLIENT_ID }}
           tenant-id: ${{ secrets.ARM_TENANT_ID }}
