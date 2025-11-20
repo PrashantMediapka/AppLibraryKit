@@ -5,11 +5,11 @@
 # your actual values before running terraform
 
 # Azure Subscription Information
-subscription_id = "YOUR_SUBSCRIPTION_ID"
-tenant_id       = "YOUR_TENANT_ID"
+subscription_id = "f1944295-c875-4042-bb02-84b71e64719b"
+tenant_id       = "8a54861f-10c8-463e-9302-c6ee5ca8350b"
 
 # Service Principal Credentials
-client_id     = "YOUR_SERVICE_PRINCIPAL_CLIENT_ID"
+client_id     = "676e0a84-0d04-4cc4-b679-54fcd2e4f364"
 client_secret = "YOUR_SERVICE_PRINCIPAL_CLIENT_SECRET"
 
 # Environment Configuration
