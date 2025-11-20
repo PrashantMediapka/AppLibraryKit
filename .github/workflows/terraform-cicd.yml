@@ -11,7 +11,12 @@ jobs:
     name: Deploy Terraform infrastructure
     runs-on: ubuntu-latest
     env:
+      # Subscription and service principal values are read from repository secrets
       AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+      ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+      ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
 
     steps:
       - name: Checkout repository
@@ -22,10 +27,13 @@ jobs:
         with:
           terraform_version: "1.5.7"
 
-      - name: Azure login
+      - name: Azure login (service principal)
         uses: azure/login@v1
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          client-id: ${{ secrets.ARM_CLIENT_ID }}
+          client-secret: ${{ secrets.ARM_CLIENT_SECRET }}
+          tenant-id: ${{ secrets.ARM_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       - name: Set subscription (explicit)
         run: |
